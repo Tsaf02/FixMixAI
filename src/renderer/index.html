@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="he" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixMixAI — Magic Mirror</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ═══ Custom Title Bar ═══ -->
+  <header class="titlebar" id="titlebar">
+    <div class="titlebar-drag" id="titlebar-drag">
+      <div class="titlebar-logo">
+        <span class="logo-icon">🪞</span>
+        <span class="logo-text">FixMix Mirror</span>
+      </div>
+    </div>
+    <div class="titlebar-controls">
+      <button class="titlebar-btn btn-capture" id="btn-recapture" title="Re-capture text (or press Ctrl+Shift+M)">
+        🔄
+      </button>
+      <button class="titlebar-btn btn-minimize" id="btn-minimize" title="Minimize">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button class="titlebar-btn btn-close" id="btn-close" title="Close">
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══ Main Content Area ═══ -->
+  <main class="mirror-body" id="mirror-body">
+
+    <!-- Empty State (shown when no text captured yet) -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">🪞</div>
+      <h2>המראה מוכנה</h2>
+      <p class="empty-subtitle">The Mirror is Ready</p>
+      <div class="shortcut-hint">
+        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>
+      </div>
+      <p class="empty-desc">
+        לחץ על קיצור המקשים כשהאפליקציה השנייה פתוחה
+        <br>
+        Press the shortcut while the other app is focused
+      </p>
+    </div>
+
+    <!-- Content Area (shown after capture) -->
+    <div class="content-area" id="content-area" style="display:none;">
+      <div class="content-scroll" id="content-scroll"></div>
+    </div>
+  </main>
+
+  <!-- ═══ Status Bar ═══ -->
+  <footer class="statusbar" id="statusbar">
+    <span class="status-text" id="status-text">Waiting for capture…</span>
+    <span class="status-time" id="status-time"></span>
+  </footer>
+
+  <!-- ═══ Resize Handle (visual hint) ═══ -->
+  <div class="resize-handle" id="resize-handle"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

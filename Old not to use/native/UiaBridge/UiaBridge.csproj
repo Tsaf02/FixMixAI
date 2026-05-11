@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <UseWindowsForms>false</UseWindowsForms>
+    <UseWPF>false</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Interop.UIAutomationClient: COM interop wrappers for Windows UIAutomation API.
+      EmbedInteropTypes=false keeps the interop DLL as a real reference (needed for .NET 5+).
+    -->
+    <PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

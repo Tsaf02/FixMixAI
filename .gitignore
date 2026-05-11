@@ -1,0 +1,23 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Published executables (large self-contained binaries)
+native/UiaBridge/bin/publish/
+
+# Node / Electron
+node_modules/
+dist/
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
