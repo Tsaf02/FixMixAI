@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+    "build-bridge": "dotnet publish src/native/UiaBridge.csproj -c Release -o src/native/bin --nologo -v minimal"
   },
   "author": "FixMixAI Team",
   "license": "MIT",
@@ -15,6 +16,7 @@
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.0",
     "electron-store": "^8.2.0",
+    "highlight.js": "^11.11.1",
     "marked": "^18.0.3"
   }
 }

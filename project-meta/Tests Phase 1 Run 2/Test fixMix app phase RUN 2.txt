@@ -1,0 +1,64 @@
+Test fixMix app phase one at the morning of May 14, 2026 
+
+At this test FIXMIX displayed all apps including Broswer apps, artifacts, canvas, browser extentions side bars BUT with out the UIA auto update
+Claude desktop displayd with the UIA, but didn't update automaticly. When "eye" icon was on, I have still needed to copy text from claude (read backend tests).
+
+1. We created two buttons for full screen and medium-size screen. Both of them work the same so we can delete one of them and leave only the one that is the full square icon. 
+"C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\Screenshot 2026-05-14 010035.png"
+*  If you press it, you go into full screen. If you press it again, you go into a medium screen or any size it was before.
+
+
+2.  When it comes to fixing the text, when it copy a list starting with "*" one a sentence starts with an English word in the original text, and didn't align to all other items in the list (
+ "C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\one line out of alignment.png". 
+And another example at a table: 
+"C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\line out of alignment in a table.png"
+
+3. Fixing "Table" or "Tablets" when the original text in columns. When the original text is displayed in a CHAT, it failing to display the table colomns in RTL.
+ "C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\wrong table on RTL.png".
+BUT When it displayed a table from the artifacts, it fixes the column order to RTL. It still does not copy the interactive elements or buttons, and it still does not place the centered text (like the headlines) at the center. It automatically displays them on the right. 
+"C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\Artifact table.png"
+
+4. check: "C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\Element missing at the RTL.png" . When we have an interactive or graphic element that is split across lines in the original window, we want to copy at least the line breaks. We also want to mark to the users, "Here is an interactive element" or "Here was an element" so they will know that in the original window they had some elements. At this time we cannot get this kind of reference in the FixMix window. 
+
+5. Some times sentencess or title that starts with Endlishe word- does not fixed to RTL 
+"C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\title start with English.png"
+"C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2\Chat GPT broser canvas test- English at first word- does not fixet to RTL.png"
+
+Backend
+The use of "Automatic Update" was tested, and here are the conclusions:
+
+1. After opening FIXMIX via the terminal and activating the "eye icon" button, the terminal showed an operation that worked.
+2. Attempting to write in the prompts' text box was completely disrupted. I couldn't write a single complete sentence before a disruption occurred: the text wouldn't write, the previously written text disappeared, and other disruptions likely originating from the operation via the UIA.
+3. When I closed the "eye" icon, I was able to write a prompt, activate the "eye," send the prompt, and receive an answer from the AI in the original LLaVA - but the text did not update in the FIXMIX window.
+4. I tried sending and receiving new text without turning off the eye, but the automatic update did not work without my intervention.
+5. However, what did work was that when the "eye" icon was activated and a new text was finished being written in the chat, a click on "Copy" was enough, and immediately the text in FIXMIX was replaced with the new text. This new text only included the paragraph I copied. Because in AI-sourced chats in AI applications, there is a different "Copy" function for the text the user writes and a different one for the AI's responses, only the text I selected was pasted into FIXMIX - either the prompt I wrote or the answer. Never both together.
+
+PS - The intention was that the previous text would not be deleted, but would be added to the bottom, continuing the chat, just like an AI chat behaves. In other words, the desire was for there to be a recognition of all text added since the last text that was copied, so that the user could scroll down and up and see a wide range of the chat or the artifact from right to left, as in the original display.
+
+Thoughts: Currently, what's not working is the part about "copying" the new text automatically, without human intervention. And secondly, the code is interfering with the ability to use the original chat and write prompts.
+
+We need to explore additional technological solutions – ones where a specific trigger activates the copying instead of trying to capture a moment without movement. Because there's a clear update when a user sends a message and when an AI finishes writing text. There are also updates in various artifacts.
+
+I don't understand the specifics of this – but if we incorporate a check every 1.2 seconds, it should be a check using screenshot technology or technology that identifies graphical changes or code changes within the specific window.
+
+Secondly, copying based on clicking "Copy" separately copies the text the user wrote and the text the AI responded with – this could be an advantage - For Phase 1, we can copy and display only the AI answers (no need for the users inputs). Only instead of deleting past text, addind below the next answer so use can scroll up to rememeber last text. So we need a visual mark between each new pasting RTL fixed text so the user will know it is the next answer. 
+– for Phase 2 we will need to find a way for this copying to capture all the parts. In addition, we need to find a way to copy the interactive elements. They are not copied via the "Copy" button, and later, for the visual display phase, we might need a completely different technology that knows how to copy code instead of just text. Investigate how this is possible?
+
+In order to solve an automations in all apps, please read the research "rendering-engine-detection.md" in the same folder (C:\Users\ortsa\Dropbox\Apps and agents building\FixMixAI\project-meta\Tests Phase 1 Run 2). This reaserch can be a guideline for developing a fast app software/ engine recognition for any app outther in realtime. So when user select the text window or copy the first time, we can develope a recognition automation for this app engine. After fast reconition FixMix backend will have a ready to use code for the main apps in the markets. 
+
+Summary
+Before the next run — conduct an investigation and planning to fix the problems found. Divide them into several runs as needed.
+The current goal is to solve phase 1 in the best possible way, with the understanding that phase 2 will likely require different planning and methodology.
+When planning, consider a different activation method than the current one. Right now: the user copies text and presses a refresh button. There's no need for alt+space. But consider a UI and a process where the user selects a "text window" or copy the text at the first time as it is now. But we  completely change the activation method. For example, before the first action of selecting the window or the text we could have a small floating control panel with several activation buttons: a button to activate chat, a different button to activate artifact, another button to open an additional window (for example in Cloud Desktop you can work simultaneously in chat, in artifact, and in co-work). Activation might start by selecting the text and then clicking a button. In both examples a window opens with the corrected text after activation, and the control panel remains separately on the side for opening additional windows. Also consider other approaches.
+
+Fix in the frontend:
+1. One icon to toggle between medium size and minimized/maximized (increase/decrease screen) instead of two buttons. + Larger Refresh+ Larger and more clear "eye" icon- so user will know if the automatic copy- paste works now. 
+2. Fix display of text that begins with an English word, a number, or a graphic symbol.
+3. Fix display of lists and tables — including correcting column order to RTL.
+4. Investigate and decide whether graphic elements and interactive elements are copied, or only a placeholder is displayed, or a note is written (text: interactive element at source text), or only spacing is left in the text before and after the element. What is possible?
+
+In the backend:
+1. Investigate developing detection of the rendering engine that displays text in any chosen application (Windows + Chrome).
+2. Investigate a better solution for automatic text detection and copying, without disrupting the user's typing, and that manages to "copy" the text at the end of each completed reply in the AI chat.  Another mthod to watch, or and copy elements from the original text.
+Is it possible to copy the HTML & CSS instead of text and to display it the same as the original app? if not how do we mark the user about end of an answer, interactive elemnts, Can we keep colors, Bold, active links etc?
+

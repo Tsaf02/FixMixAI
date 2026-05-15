@@ -32,7 +32,7 @@
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
 
   /* ── Spacing ── */
-  --titlebar-height: 40px;
+  --titlebar-height: 46px;
   --statusbar-height: 28px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -128,15 +128,42 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 28px;
+  width: 38px;
+  height: 34px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-size: 14px;
+  font-size: 16px;
+  position: relative;
+}
+
+/* ── Custom instant tooltips ── */
+.titlebar-btn[title]::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 20, 0.95);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s var(--ease-smooth);
+  z-index: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.titlebar-btn[title]:hover::after {
+  opacity: 1;
 }
 
 .titlebar-btn:hover {
@@ -152,6 +179,60 @@ body {
 .btn-capture:active {
   transform: rotate(180deg);
   transition: transform 0.4s var(--ease-smooth);
+}
+
+/* Watch Mode button — eye icon, pulses green when active */
+.btn-watch:hover {
+  background: rgba(76, 214, 193, 0.12);
+  color: #4cd6c1;
+}
+
+.btn-watch.active {
+  color: #4cd6c1;
+  background: rgba(76, 214, 193, 0.1);
+  position: relative;
+}
+
+/* Pulsing dot on the watch button when active */
+.btn-watch.active::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4cd6c1;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Status bar dot for watch mode */
+.watch-dot {
+  background: #4cd6c1 !important;
+  box-shadow: 0 0 8px rgba(76, 214, 193, 0.6) !important;
+  animation: pulse 1.5s ease-in-out infinite !important;
+}
+
+/* Pin button — lights up when pinned */
+.btn-pin:hover {
+  background: rgba(92, 138, 252, 0.15);
+  color: var(--accent-secondary);
+}
+
+.btn-pin.active {
+  color: var(--accent-secondary);
+  background: rgba(92, 138, 252, 0.12);
+}
+
+.btn-pin.active:hover {
+  background: rgba(92, 138, 252, 0.22);
+}
+
+/* Maximize / Fullscreen */
+.btn-maximize:hover,
+.btn-fullscreen:hover {
+  background: rgba(76, 214, 193, 0.12);
+  color: #4cd6c1;
 }
 
 .btn-close:hover {
@@ -210,13 +291,18 @@ body {
   margin-bottom: 18px;
 }
 
+.hint-plus {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .shortcut-hint kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
+  min-width: 36px;
   height: 30px;
-  padding: 0 8px;
+  padding: 0 10px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -233,11 +319,36 @@ body {
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 12px var(--accent-glow);
 }
 
-.empty-desc {
+.watch-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 7px 18px;
+  background: rgba(76, 214, 193, 0.08);
+  border: 1px solid rgba(76, 214, 193, 0.2);
+  border-radius: 20px;
+  color: #4cd6c1;
   font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.7;
+  font-weight: 500;
+}
+
+.watch-hint-icon {
+  font-size: 15px;
+}
+
+.empty-desc {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.8;
   direction: rtl;
+}
+
+.empty-desc-secondary {
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  margin-top: 10px;
 }
 
 /* ── Content (after capture) ── */
@@ -295,6 +406,41 @@ body {
 
 .text-line.empty-line {
   height: 12px;
+}
+
+/* RTL list alignment fix */
+.content-scroll ul[dir="rtl"],
+.content-scroll ol[dir="rtl"],
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 24px;
+  padding-left: 0;
+  text-align: right;
+}
+
+[dir="rtl"] li {
+  text-align: right;
+}
+
+/* RTL table alignment fix */
+.content-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.content-scroll th,
+.content-scroll td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  line-height: 1.5;
+}
+
+.content-scroll th {
+  background: rgba(124, 92, 252, 0.08);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Code blocks */
@@ -424,16 +570,171 @@ body {
   box-shadow: 0 0 8px rgba(76, 214, 193, 0.5);
 }
 
-/* ── Resize Handle ── */
+/* ── Resize Handle ──
+   Larger hit area in the bottom-right corner to make grabbing easier */
 .resize-handle {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   cursor: nwse-resize;
-  opacity: 0;
   z-index: 200;
+  /* Subtle visual indicator */
+  background: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(124, 92, 252, 0.15) 40%,
+    rgba(124, 92, 252, 0.15) 60%,
+    transparent 60%
+  );
+  border-radius: 0 0 var(--radius-md) 0;
+}
+
+.resize-handle:hover {
+  background: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(124, 92, 252, 0.35) 40%,
+    rgba(124, 92, 252, 0.35) 60%,
+    transparent 60%
+  );
+}
+
+/* ════════════════════════════════════════════════════
+   Append Mode — Capture Blocks & Separators
+   ════════════════════════════════════════════════════ */
+
+.capture-block {
+  /* Each appended capture sits in its own block */
+}
+
+.capture-separator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.capture-separator::before,
+.capture-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.capture-separator span {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+}
+
+/* ── Interactive Element Placeholders ──
+   Shown in place of buttons, inputs, canvas, video, etc. */
+.interactive-placeholder {
+  display: inline-block;
+  padding: 1px 8px;
+  background: rgba(124, 92, 252, 0.07);
+  border: 1px dashed rgba(124, 92, 252, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  vertical-align: middle;
+  user-select: none;
+}
+
+.interactive-placeholder.interactive-block {
+  display: block;
+  margin: 6px 0;
+  text-align: center;
+}
+
+/* ── RTL List Fixes ──
+   When a list is in RTL context its bullet/number must be on the right. */
+[dir="rtl"] ul,
+[dir="rtl"] ol,
+ul[dir="rtl"],
+ol[dir="rtl"] {
+  padding-right: 24px;
+  padding-left: 0;
+  text-align: right;
+}
+
+[dir="rtl"] li,
+li[dir="rtl"] {
+  text-align: right;
+}
+
+/* ── RTL Table Fixes ──
+   Reverse column visual order and right-align cells. */
+table[dir="rtl"],
+[dir="rtl"] table {
+  direction: rtl;
+  text-align: right;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table[dir="rtl"] th,
+table[dir="rtl"] td,
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+table[dir="rtl"] thead,
+[dir="rtl"] thead {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Centered headings inside RTL ──
+   Titles that were centered in the original stay centered. */
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+h1[dir="rtl"],
+h2[dir="rtl"],
+h3[dir="rtl"] {
+  text-align: right; /* default right; override with .centered if needed */
+}
+
+/* ── Status Bar extras ── */
+.statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-clear-text {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  letter-spacing: 0.3px;
+}
+
+.btn-clear-text:hover {
+  background: rgba(255, 77, 106, 0.12);
+  color: var(--danger);
+}
+
+/* ── Larger primary-action buttons (Recapture + Watch) ── */
+.btn-primary-action {
+  width: 44px;
+  font-size: 18px;
 }
 
 /* ════════════════════════════════════════════════════
@@ -489,4 +790,179 @@ body {
   .content-scroll {
     padding: 14px 12px;
   }
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — User vs AI Message Bubbles
+   ════════════════════════════════════════════════════ */
+
+.capture-block--ai {
+  border-left: 3px solid rgba(124, 92, 252, 0.3);
+  padding-left: 12px;
+  margin-left: 0;
+}
+
+.capture-block--user {
+  background: rgba(92, 138, 252, 0.07);
+  border: 1px solid rgba(92, 138, 252, 0.18);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin: 4px 0;
+  text-align: right;
+  direction: rtl;
+}
+
+.capture-block--user .text-line {
+  color: #c8d8ff;
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Blockquote Styling
+   ════════════════════════════════════════════════════ */
+
+.content-scroll blockquote {
+  border-left: 3px solid var(--accent-primary);
+  margin: 8px 0;
+  padding: 6px 14px;
+  color: var(--text-secondary);
+  background: rgba(124, 92, 252, 0.05);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+}
+
+[dir="rtl"] blockquote,
+blockquote[dir="rtl"] {
+  border-left: none;
+  border-right: 3px solid var(--accent-primary);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  padding: 6px 14px 6px 8px;
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Table Zebra Striping
+   ════════════════════════════════════════════════════ */
+
+.content-scroll tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.content-scroll tbody tr:hover td {
+  background: rgba(124, 92, 252, 0.07);
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Code Block with Copy Button
+   ════════════════════════════════════════════════════ */
+
+.code-block-wrapper {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.code-lang-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.4px;
+}
+
+.btn-copy-code {
+  background: rgba(124, 92, 252, 0.12);
+  border: 1px solid rgba(124, 92, 252, 0.25);
+  color: var(--accent-primary);
+  font-size: 10px;
+  font-family: var(--font-ui);
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-copy-code:hover {
+  background: rgba(124, 92, 252, 0.25);
+  color: #fff;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 16px;
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Clear Button (always visible)
+   ════════════════════════════════════════════════════ */
+
+.btn-clear-text {
+  background: rgba(255, 77, 106, 0.08) !important;
+  border: 1px solid rgba(255, 77, 106, 0.25) !important;
+  color: #ff8fa3 !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 2px 10px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.btn-clear-text:hover {
+  background: rgba(255, 77, 106, 0.22) !important;
+  color: #fff !important;
+  border-color: rgba(255, 77, 106, 0.5) !important;
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Source Lock Indicator
+   ════════════════════════════════════════════════════ */
+
+.source-lock-indicator {
+  display: none;
+  font-size: 10px;
+  color: #4cd6c1;
+  background: rgba(76, 214, 193, 0.08);
+  border: 1px solid rgba(76, 214, 193, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  margin-left: 8px;
+  cursor: default;
+}
+
+/* ════════════════════════════════════════════════════
+   Run 3 — Heading Hierarchy & Centered Headings
+   ════════════════════════════════════════════════════ */
+
+.content-scroll h1 { font-size: 24px; margin: 18px 0 10px; }
+.content-scroll h2 { font-size: 19px; margin: 14px 0 8px; }
+.content-scroll h3 { font-size: 15px; margin: 10px 0 6px; color: var(--text-secondary); }
+
+/* Headings that come from centered source content */
+.content-scroll h1.source-centered,
+.content-scroll h2.source-centered,
+.content-scroll h3.source-centered {
+  text-align: center !important;
+}
+
+/* Link styling — already clickable via openExternal */
+.content-scroll a {
+  color: var(--accent-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.content-scroll a:hover {
+  color: #8fb4ff;
 }

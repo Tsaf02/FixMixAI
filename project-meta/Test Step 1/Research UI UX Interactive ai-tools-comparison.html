@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>השוואת UI/UX – כלי AI לדסקטופ 2025–2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    background: #0f1117;
+    color: #e2e8f0;
+    padding: 16px;
+    direction: rtl;
+  }
+  h1 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #a78bfa;
+    direction: rtl;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 18px;
+    direction: rtl;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .filter-bar button {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s;
+  }
+  .filter-bar button:hover, .filter-bar button.active {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
+  }
+
+  /* Table wrapper */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    direction: ltr; /* logical column order stays LTR */
+    min-width: 1200px;
+  }
+  thead tr {
+    background: #1a1f2e;
+  }
+  thead th {
+    padding: 10px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #334155;
+    white-space: nowrap;
+    text-align: right;
+    direction: rtl;
+  }
+  thead th:first-child { text-align: right; direction: rtl; }
+
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: #1a1f2e; }
+  tbody tr:nth-child(even) { background: #0d1117; }
+  tbody tr:nth-child(odd) { background: #111827; }
+
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #1e293b;
+    vertical-align: top;
+    line-height: 1.55;
+    text-align: right;
+    direction: rtl;
+  }
+  td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 130px;
+  }
+
+  /* Column colours */
+  .col-tool   { min-width: 130px; }
+  .col-window { min-width: 95px; color: #7dd3fc; font-weight: 600; font-size: 12px; }
+  .col-ui     { min-width: 220px; }
+  .col-copy   { min-width: 170px; }
+  .col-inter  { min-width: 200px; }
+
+  /* Category badge */
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    direction: ltr;
+  }
+  .badge-chat  { background: #1e3a5f; color: #7dd3fc; }
+  .badge-edit  { background: #1e3a2a; color: #6ee7b7; }
+
+  /* Tool name chip */
+  .tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #1e1b4b;
+    border: 1px solid #4338ca;
+    border-radius: 8px;
+    padding: 4px 9px;
+    font-size: 12px;
+    color: #a5b4fc;
+    direction: ltr;
+  }
+  .tool-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Tick / cross */
+  .yes { color: #34d399; }
+  .no  { color: #f87171; }
+  .partial { color: #fbbf24; }
+
+  /* Feature pill list */
+  ul.pill-list { list-style: none; padding: 0; }
+  ul.pill-list li {
+    display: inline-block;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    margin: 2px 2px 2px 0;
+    direction: ltr;
+    text-align: left;
+  }
+
+  /* Section divider rows */
+  tr.section-row td {
+    background: #0f172a;
+    color: #7c3aed;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border-top: 2px solid #4c1d95;
+  }
+
+  /* Legend */
+  .legend {
+    margin-top: 14px;
+    font-size: 10px;
+    color: #475569;
+    text-align: center;
+    direction: rtl;
+  }
+  .legend span { margin: 0 8px; }
+
+  /* Tooltip */
+  [data-tip] { cursor: help; border-bottom: 1px dashed #475569; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    max-width: 240px;
+    z-index: 99;
+    white-space: normal;
+    direction: rtl;
+    border: 1px solid #334155;
+  }
+</style>
+</head>
+<body>
+
+<h1 dir="rtl">השוואת UI/UX – כלי AI לדסקטופ 2025–2026</h1>
+<p class="subtitle">Chat Window + חלון עריכה שני | פיצ'רים, Copy/Save, ואלמנטים אינטראקטיביים</p>
+
+<div class="filter-bar">
+  <button class="active" onclick="filterAll(this)">הכל</button>
+  <button onclick="filterCat(this,'chat')">Chat בלבד</button>
+  <button onclick="filterCat(this,'edit')">חלון עריכה בלבד</button>
+  <button onclick="filterGroup(this,'coding')">כלי קוד</button>
+  <button onclick="filterGroup(this,'general')">כלי כללי</button>
+</div>
+
+<div class="table-wrap">
+<table id="mainTable">
+<thead>
+<tr>
+  <th class="col-tool" dir="rtl">כלי</th>
+  <th class="col-window" dir="rtl">חלון</th>
+  <th class="col-ui" dir="rtl">מאפייני UI/UX עיקריים</th>
+  <th class="col-copy" dir="rtl">Copy / Save / Export</th>
+  <th class="col-inter" dir="rtl">אלמנטים אינטראקטיביים בולטים</th>
+</tr>
+</thead>
+<tbody>
+
+<!-- ═══════════════════════════════ CLAUDE ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">CLAUDE DESKTOP / CLAUDE.AI — Anthropic</td></tr>
+
+<tr data-cat="chat" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#a78bfa"></span>Claude</div></td>
+  <td><span class="badge badge-chat">Chat</span><br>Chat Window</td>
+  <td dir="rtl">
+    פאנל שמאלי לניהול שיחות + Projects.<br>
+    Dark mode, עיצוב מינימליסטי.<br>
+    Markdown rendering מלא.<br>
+    קיצורי מקלדת (<span dir="ltr">Shift+Enter</span>).<br>
+    Memory + User Preferences ב-Settings.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לכל הודעה/קוד בלחיצה<br>
+    <span class="yes">✔</span> Export שיחה ל-PDF/JSON (Pro)<br>
+    <span class="partial">◑</span> אין Save מובנה – נשמר אוטומטית
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Regenerate response</li>
+      <li>Edit prompt (עריכת שאלה קיימת)</li>
+      <li>Thumbs up/down (feedback)</li>
+      <li>@-mention לקבצים בפרויקט</li>
+      <li>Artifacts toggle (פתח/סגור)</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#a78bfa"></span>Claude</div></td>
+  <td><span class="badge badge-edit">Edit</span><br>Artifacts Panel</td>
+  <td dir="rtl">
+    Split-view ימני.<br>
+    Rendering חי: HTML, React, SVG, Markdown, קוד.<br>
+    Syntax highlighting.<br>
+    Version history (חצי הניווט).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy (כפתור בפינה)<br>
+    <span class="yes">✔</span> Download (קובץ HTML/SVG וכו')<br>
+    <span class="partial">◑</span> Export מוגבל לפורמטים ספציפיים
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Preview / Code toggle</li>
+      <li>Version back/forward arrows</li>
+      <li>Fullscreen mode</li>
+      <li>Live HTML iframe rendering</li>
+      <li>React component preview</li>
+      <li>עריכה ישירה (בצינור עם Claude)</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ CHATGPT ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">CHATGPT — OpenAI</td></tr>
+
+<tr data-cat="chat" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#10a37f"></span>ChatGPT</div></td>
+  <td><span class="badge badge-chat">Chat</span><br>Chat Window</td>
+  <td dir="rtl">
+    Sidebar לשיחות + Projects (דראג אנד דרופ).<br>
+    Voice mode, dark mode.<br>
+    Model picker בתוך הצ'אט (GPT-5, o3…).<br>
+    Global search across Projects.<br>
+    Memory panel ב-Settings.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לכל הודעה<br>
+    <span class="yes">✔</span> Share קישור לשיחה<br>
+    <span class="partial">◑</span> Export Projects (Enterprise)
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Regenerate / Edit prompt</li>
+      <li>Thumbs up/down</li>
+      <li>"/canvas" slash command</li>
+      <li>Voice input (Web Speech API)</li>
+      <li>File upload drag & drop</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#10a37f"></span>ChatGPT</div></td>
+  <td><span class="badge badge-edit">Edit</span><br>Canvas</td>
+  <td dir="rtl">
+    Split-view: Chat (שמאל) + Editor (ימין).<br>
+    Text Mode ו-Code Mode (שורות ממוספרות).<br>
+    Markdown בסיסי: bold, italic, headers, bullets.<br>
+    Version history (חצי ניווט, Show Changes).<br>
+    Diff view בין גרסאות.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy (כפתור עליון)<br>
+    <span class="yes">✔</span> Export: PDF, Word (.docx), Markdown, .py/.js/.sql<br>
+    <span class="yes">✔</span> Version restore
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Inline comment bubbles (Suggest Edits)</li>
+      <li>Highlight → inline prompt</li>
+      <li>Shortcut menu (bottom-right)</li>
+      <li>Adjust Length / Reading Level</li>
+      <li>Add Emojis / Final Polish</li>
+      <li>Python Execute (run in browser)</li>
+      <li>Fix Bug button (מהקונסולה)</li>
+      <li>Port to Language</li>
+      <li>Apply / Dismiss comment</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ CURSOR ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">CURSOR — Anysphere (VS Code fork)</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#60a5fa"></span>Cursor</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat Panel (Cmd+L)</span></td>
+  <td dir="rtl">
+    פאנל צד ב-IDE.<br>
+    בחירת מודל per-message (Claude, GPT-5, Gemini…).<br>
+    @-tag לקבצים, docs, codebase.<br>
+    Codebase indexing – הקשר מלא לכל הפרויקט.<br>
+    Conversation context נשמר בתוך session.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לקטע קוד (Apply button)<br>
+    <span class="partial">◑</span> אין Export שיחה<br>
+    <span class="yes">✔</span> Code block → Apply לקובץ
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Apply (קוד → קובץ ישירות)</li>
+      <li>@-file / @-docs / @-git</li>
+      <li>Model switcher inline</li>
+      <li>Interactive UI (MCP charts, tldraw)</li>
+      <li>Cmd+Shift+Enter (full-file edit)</li>
+      <li>Background Agents</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#60a5fa"></span>Cursor</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Inline Edit (Cmd+K) + Composer</span></td>
+  <td dir="rtl">
+    Inline Edit: פופ-אפ ישיר בתוך הקובץ.<br>
+    Composer: multi-file agent, diff view מלא.<br>
+    Diff: שורות אדומות/ירוקות, Accept/Reject לפי קטע.<br>
+    .cursorrules – system prompt לפרויקט.<br>
+    Autonomy Slider (Tab → Inline → Agent).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Accept / Reject diff לפי שורה<br>
+    <span class="yes">✔</span> Save אוטומטי לקובץ<br>
+    <span class="yes">✔</span> Git diff integration<br>
+    <span class="partial">◑</span> Export – דרך Git בלבד
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Accept All / Reject All diff</li>
+      <li>Partial accept (per-hunk)</li>
+      <li>Composer multi-file plan</li>
+      <li>Tab completion (Supermaven)</li>
+      <li>Cmd+K pop-up inline</li>
+      <li>Terminal autonomy (Agent Mode)</li>
+      <li>Background Agent PR opener</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ CLAUDE CODE ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">CLAUDE CODE (Desktop App) — Anthropic</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#c084fc"></span>Claude Code</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat / Terminal UI</span></td>
+  <td dir="rtl">
+    Desktop app או Terminal (CLI).<br>
+    Session מקושר לתיקיית פרויקט.<br>
+    @-tag לקבצים, slash commands.<br>
+    Markdown output עם syntax highlighting.<br>
+    Progress indicators בזמן ביצוע.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לפלט<br>
+    <span class="partial">◑</span> אין Export שיחה (CLI)<br>
+    <span class="yes">✔</span> /install-github-app ← PR review אוטומטי
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Slash commands (/review, /fix…)</li>
+      <li>@-file tagging</li>
+      <li>Plan Mode (אישור לפני ביצוע)</li>
+      <li>Permission prompts (approve/deny)</li>
+      <li>Sub-agent selection</li>
+      <li>MCP tool integration</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#c084fc"></span>Claude Code</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">File Editor + Diff View</span></td>
+  <td dir="rtl">
+    עריכת קבצים ישירה בתיקיית הפרויקט.<br>
+    Diff view (Terminal-style).<br>
+    Builder.io Extension: Visual Interface עם Live Preview.<br>
+    Figma-style Design Mode (via Builder.io).<br>
+    1M token context (Opus).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> שמירה ישירה לקובץ<br>
+    <span class="yes">✔</span> Git commit אוטומטי (עם אישור)<br>
+    <span class="partial">◑</span> אין Export ייעודי
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Approve/Deny file edit</li>
+      <li>Run terminal command</li>
+      <li>PR creation (GitHub)</li>
+      <li>Live Preview (Builder.io)</li>
+      <li>Visual Design Mode (Builder.io)</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ OPENAI CODEX ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">OPENAI CODEX (Desktop App) — OpenAI</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#10a37f"></span>Codex</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat / Task Panel</span></td>
+  <td dir="rtl">
+    Desktop app עצמאי + CLI.<br>
+    Cloud sandbox – הAgent רץ בענן.<br>
+    Reasoning level selector (low/mid/high/minimal).<br>
+    Progress updates בזמן אמת.<br>
+    Clarifying questions לפני ביצוע.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לפלט<br>
+    <span class="partial">◑</span> UX פרימיטיבי יחסית לפי reviews<br>
+    <span class="partial">◑</span> אין Export שיחה
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Reasoning level slider</li>
+      <li>Real-time steering mid-task</li>
+      <li>Multi-agent coordination</li>
+      <li>MCP server support</li>
+      <li>Approve/Deny actions</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#10a37f"></span>Codex</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Cloud Sandbox + Diff</span></td>
+  <td dir="rtl">
+    עריכה בסביבת Sandbox מבודדת בענן.<br>
+    PR creation אוטומטי.<br>
+    Output artifacts (קבצים, logs, screenshots).<br>
+    Parallel agent branches.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> PR ל-GitHub<br>
+    <span class="yes">✔</span> Download artifacts<br>
+    <span class="partial">◑</span> אין Inline diff כמו Cursor
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Fork agent branch</li>
+      <li>Parallel task coordination</li>
+      <li>Run tests in sandbox</li>
+      <li>PR review automation</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ WINDSURF ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">WINDSURF (לשעבר Codeium) — Cognition AI</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#06b6d4"></span>Windsurf</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Cascade Chat Panel</span></td>
+  <td dir="rtl">
+    Cascade – agentic chatbot בפאנל שמאלי.<br>
+    Flow: context רציף שלא מתאפס בין sessions.<br>
+    Memories – ידע פרויקטלי שנצבר לאורך זמן.<br>
+    Codebase indexing אוטומטי.<br>
+    70+ שפות תכנות.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לקוד<br>
+    <span class="yes">✔</span> Apply → קובץ<br>
+    <span class="partial">◑</span> אין Export שיחה
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Cascade multi-step plan</li>
+      <li>Apply code block</li>
+      <li>Memories recall (automatic)</li>
+      <li>MCP server support</li>
+      <li>Netlify deploy (preview)</li>
+      <li>Flow context persistence</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#06b6d4"></span>Windsurf</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Inline Edit + Diff View</span></td>
+  <td dir="rtl">
+    Multi-file editing עם diff מלא.<br>
+    Supercomplete – autocomplete עם הקשר multi-file.<br>
+    Turbo Mode: ביצוע terminal commands אוטומטי.<br>
+    Live Preview (web apps) בתוך ה-IDE.<br>
+    Codemaps: ניווט סמנטי בקוד.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Accept/Reject diff<br>
+    <span class="yes">✔</span> Save לקובץ<br>
+    <span class="yes">✔</span> Deploy ל-Netlify
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Turbo Mode terminal</li>
+      <li>Live web preview</li>
+      <li>Codemaps navigation</li>
+      <li>Accept/Reject per-hunk</li>
+      <li>Supercomplete inline</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ ANTIGRAVITY ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">ANTIGRAVITY (אנטיגרביטי) — Google</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#f59e0b"></span>אנטי-גרביטי</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Manager Surface</span></td>
+  <td dir="rtl">
+    Manager View: לוח בקרה להפעלת עד 5 agents במקביל.<br>
+    Editor View: עריכת קוד ידנית.<br>
+    Agent progress asynchronous – ניתן לעבוד במקביל.<br>
+    Gemini 3 Pro / Claude Sonnet 4.5 / GPT-OSS.<br>
+    Plan Mode: Agent מציג תוכנית לפני ביצוע.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לפלט<br>
+    <span class="partial">◑</span> ללא MCP support (נכון ל-03/2026)<br>
+    <span class="partial">◑</span> אין Export ייעודי לשיחה
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Spawn parallel agents (×5)</li>
+      <li>Leave feedback on Artifact</li>
+      <li>Plan review before execution</li>
+      <li>Background task delegation</li>
+      <li>Browser control (agents)</li>
+      <li>Model selector per-agent</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#f59e0b"></span>אנטי-גרביטי</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Artifact-based Output</span></td>
+  <td dir="rtl">
+    Agents מייצרים Artifacts: תוכנית, screenshots, task lists.<br>
+    עיון ב-Artifact במקום log scanning.<br>
+    comment ישיר על Artifact (כמו Google Docs).<br>
+    Terminal + Browser autonomy.<br>
+    AgentKit (קניינית) במקום MCP.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Download artifacts<br>
+    <span class="yes">✔</span> Comment → agent incorporates feedback<br>
+    <span class="partial">◑</span> ללא Inline diff כמו Cursor
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Comment on Artifact (Google-Doc style)</li>
+      <li>Screenshot artifact review</li>
+      <li>Task list artifact</li>
+      <li>Implementation plan artifact</li>
+      <li>Turbo Mode (execute without confirm)</li>
+      <li>Agent-to-agent communication</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ GITHUB COPILOT ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">GITHUB COPILOT — Microsoft / GitHub</td></tr>
+
+<tr data-cat="chat" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#8b5cf6"></span>Copilot</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Copilot Chat Panel</span></td>
+  <td dir="rtl">
+    Plugin ל-VS Code, JetBrains, Neovim, Visual Studio.<br>
+    Chat Panel בצד.<br>
+    Multi-model: Claude Sonnet 4.5, GPT-5 mini, Gemini.<br>
+    GitHub Issue → PR automation.<br>
+    Copilot Workspace: תכנון features מתוך GitHub.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לקוד<br>
+    <span class="yes">✔</span> Apply לקובץ<br>
+    <span class="partial">◑</span> אין Export שיחה
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Issue → PR (Coding Agent)</li>
+      <li>PR review inline</li>
+      <li>Apply code block</li>
+      <li>MCP server support (Agent Mode)</li>
+      <li>Voice input</li>
+      <li>/fix, /explain slash commands</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="coding">
+  <td><div class="tool-chip"><span class="dot" style="background:#8b5cf6"></span>Copilot</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Inline Suggestions + Agent Mode</span></td>
+  <td dir="rtl">
+    Inline completion (Tab) בתוך הקובץ.<br>
+    Agent Mode: multi-file planning + execution.<br>
+    Copilot Edits: multi-file edit session.<br>
+    GitHub.com integration עמוקה ביותר.<br>
+    Enterprise: SSO, audit logs, encryption.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Accept / Dismiss suggestion<br>
+    <span class="yes">✔</span> Accept next word (partial)<br>
+    <span class="yes">✔</span> Git integration מלא
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Tab complete (word/line/block)</li>
+      <li>Accept next word</li>
+      <li>Copilot Edits multi-file</li>
+      <li>Sparkle icon (inline fix)</li>
+      <li>Smart actions (hover menu)</li>
+      <li>Workspace planning (GitHub.com)</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ GEMINI ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">GEMINI APP — Google</td></tr>
+
+<tr data-cat="chat" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#4ade80"></span>Gemini</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat Window</span></td>
+  <td dir="rtl">
+    Desktop app (macOS native + Windows) + Web.<br>
+    Drag & drop קבצים מ-Finder/Explorer.<br>
+    Keyboard shortcuts, clipboard integration.<br>
+    Persistent sessions בין launches.<br>
+    Notebooks: Projects עם sync ל-NotebookLM.<br>
+    Deep Research mode (מאות חיפושים, דו"ח מצוטט).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy לתגובה<br>
+    <span class="yes">✔</span> Share (קישור)<br>
+    <span class="yes">✔</span> Export ל-Google Docs ישירות<br>
+    <span class="yes">✔</span> Deep Research → Google Docs/PDF
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Regenerate response</li>
+      <li>Thumbs up/down</li>
+      <li>Export to Google Docs (1-click)</li>
+      <li>Deep Research trigger</li>
+      <li>Notebooks sidebar</li>
+      <li>Voice input</li>
+      <li>Model selector (2.5 Pro / Flash)</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#4ade80"></span>Gemini</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Canvas (Gemini)</span></td>
+  <td dir="rtl">
+    Canvas לכתיבה ומחקר (דומה ל-ChatGPT Canvas).<br>
+    יצירת Infographics, Slide Deck, Data Tables.<br>
+    Interactive Quizzes ו-Flashcards מתוך תוכן.<br>
+    NotebookLM integration: Audio/Video Overviews.<br>
+    Deep Research reports → Canvas visuals.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Export Google Docs<br>
+    <span class="yes">✔</span> Download Infographic/Slides<br>
+    <span class="yes">✔</span> Share link
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Generate Infographic</li>
+      <li>Generate Slide Deck</li>
+      <li>Generate Data Table</li>
+      <li>Quiz / Flashcard builder</li>
+      <li>Audio Overview (podcast)</li>
+      <li>Video Overview</li>
+      <li>Transform report → visuals</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ NOTEBOOKLM ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">NOTEBOOKLM — Google Labs</td></tr>
+
+<tr data-cat="chat" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#34d399"></span>NotebookLM</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat (Q&A on sources)</span></td>
+  <td dir="rtl">
+    Chat מוגבל ל-sources שהועלו.<br>
+    1M token context window (Gemini 3).<br>
+    Multiturn conversation מורחב (×6).<br>
+    Goal/Persona customization לכל Notebook.<br>
+    Sync עם Gemini Notebooks (04/2026).<br>
+    300 sources per notebook (Pro).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy ציטוטים עם citations אוטומטיות<br>
+    <span class="yes">✔</span> Export notebook summary<br>
+    <span class="yes">✔</span> Share notebook (collaboration)
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Citation links (קליק → מקור)</li>
+      <li>Notebook Goals setter</li>
+      <li>Custom Persona (e.g. "מורה", "Game Master")</li>
+      <li>Source panel (toggle sources)</li>
+      <li>Suggested questions</li>
+    </ul>
+  </td>
+</tr>
+
+<tr data-cat="edit" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#34d399"></span>NotebookLM</div></td>
+  <td><span class="badge badge-edit">Edit</span><br><span dir="ltr">Studio Panel (Output)</span></td>
+  <td dir="rtl">
+    Studio Panel לצד ימין – פלטי מדיה מגוונים.<br>
+    Audio Overview (podcast דו-קולי).<br>
+    Video Overview (slides + narration + images).<br>
+    Infographics (Nano Banana Pro).<br>
+    Slide Deck, Data Table, Flashcards.<br>
+    Cinematic Video Mode.
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Download Audio MP3<br>
+    <span class="yes">✔</span> Download Video<br>
+    <span class="yes">✔</span> Download Infographic/Slides<br>
+    <span class="yes">✔</span> Export to Google Docs/Slides
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>Generate Audio Overview (1-click)</li>
+      <li>Generate Video Overview</li>
+      <li>Generate Infographic</li>
+      <li>Generate Slide Deck</li>
+      <li>Interactive Quiz builder</li>
+      <li>Flashcard set</li>
+      <li>Data Table from sources</li>
+    </ul>
+  </td>
+</tr>
+
+<!-- ═══════════════════════════════ COWORK ═══════════════════════════════ -->
+<tr class="section-row"><td colspan="5">קלוד קו-וורק (COWORK) — Anthropic (Beta)</td></tr>
+
+<tr data-cat="chat" data-group="general">
+  <td><div class="tool-chip"><span class="dot" style="background:#f472b6"></span>קו-וורק</div></td>
+  <td><span class="badge badge-chat">Chat</span><br><span dir="ltr">Chat Window</span></td>
+  <td dir="rtl">
+    Desktop app לא-מפתחים לאוטומציה של קבצים ומשימות.<br>
+    ממשק Claude מלא עם Artifacts.<br>
+    ניהול קבצים ומשימות מקומיות.<br>
+    Overlay/popup rendering מעל ממשק הצ'אט (בבדיקה).
+  </td>
+  <td dir="rtl">
+    <span class="yes">✔</span> Copy<br>
+    <span class="partial">◑</span> Export בבדיקה
+  </td>
+  <td dir="rtl">
+    <ul class="pill-list">
+      <li>File management automation</li>
+      <li>Task automation (non-dev)</li>
+      <li>Overlay UI elements</li>
+      <li>Artifacts (כמו Claude)</li>
+    </ul>
+  </td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<div class="legend">
+  <span><span class="yes">✔</span> = נתמך במלואו</span>
+  <span><span class="partial">◑</span> = חלקי / מוגבל</span>
+  <span><span class="no">✗</span> = לא נתמך</span>
+  <span style="color:#7dd3fc">כחול = Chat Window</span>
+  <span style="color:#6ee7b7">ירוק = חלון עריכה</span>
+</div>
+
+<script>
+function filterAll(btn) {
+  setActive(btn);
+  document.querySelectorAll('tbody tr[data-cat]').forEach(r => r.style.display = '');
+  document.querySelectorAll('tr.section-row').forEach(r => r.style.display = '');
+}
+function filterCat(btn, cat) {
+  setActive(btn);
+  document.querySelectorAll('tbody tr[data-cat]').forEach(r => {
+    r.style.display = r.dataset.cat === cat ? '' : 'none';
+  });
+  document.querySelectorAll('tr.section-row').forEach(r => r.style.display = '');
+}
+function filterGroup(btn, grp) {
+  setActive(btn);
+  document.querySelectorAll('tbody tr[data-cat]').forEach(r => {
+    r.style.display = r.dataset.group === grp ? '' : 'none';
+  });
+  document.querySelectorAll('tr.section-row').forEach(r => r.style.display = '');
+}
+function setActive(btn) {
+  document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

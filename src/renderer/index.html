@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
 
@@ -20,14 +22,31 @@
       </div>
     </div>
     <div class="titlebar-controls">
-      <button class="titlebar-btn btn-capture" id="btn-recapture" title="Re-capture text (or press Ctrl+Shift+M)">
+      <button class="titlebar-btn btn-capture btn-primary-action" id="btn-recapture" title="Read clipboard now">
         🔄
       </button>
-      <button class="titlebar-btn btn-minimize" id="btn-minimize" title="Minimize">
-        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" rx="1" fill="currentColor"/></svg>
+      <button class="titlebar-btn btn-watch btn-primary-action" id="btn-watch" title="Watch Mode — auto-captures every time you copy text">
+        <svg width="15" height="12" viewBox="0 0 13 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 5C2.5 2 4.5 1 6.5 1S10.5 2 12 5c-1.5 3-3.5 4-5.5 4S2.5 8 1 5z"/>
+          <circle cx="6.5" cy="5" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
       </button>
-      <button class="titlebar-btn btn-close" id="btn-close" title="Close">
-        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <button class="titlebar-btn btn-pin" id="btn-pin" title="Pin — keep FixMix always on top of other windows">
+        <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 1L11 3L7.5 6.5L8 9L6 11L4.5 7.5L1 5L3 3L6.5 4Z"/>
+          <line x1="1" y1="11" x2="4" y2="8"/>
+        </svg>
+      </button>
+      <button class="titlebar-btn btn-maximize" id="btn-maximize" title="Maximize / Restore window size">
+        <svg width="13" height="13" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="0.75" y="0.75" width="9.5" height="9.5" rx="1.5"/>
+        </svg>
+      </button>
+      <button class="titlebar-btn btn-minimize" id="btn-minimize" title="Minimize — hide FixMix (Escape key also works)">
+        <svg width="14" height="14" viewBox="0 0 12 12"><rect y="5" width="12" height="2" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button class="titlebar-btn btn-close" id="btn-close" title="Close FixMix">
+        <svg width="14" height="14" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
   </header>
@@ -40,13 +59,14 @@
       <div class="empty-icon">🪞</div>
       <h2>המראה מוכנה</h2>
       <p class="empty-subtitle">The Mirror is Ready</p>
-      <div class="shortcut-hint">
-        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>
+      <div class="watch-hint">
+        <span class="watch-hint-icon">👁</span>
+        <span class="watch-hint-text">Watching all apps</span>
       </div>
       <p class="empty-desc">
-        לחץ על קיצור המקשים כשהאפליקציה השנייה פתוחה
+        העתק טקסט מכל אפליקציה — FixMix יתפוס אוטומטית
         <br>
-        Press the shortcut while the other app is focused
+        Copy text from any app — FixMix captures it automatically
       </p>
     </div>
 
@@ -59,10 +79,13 @@
   <!-- ═══ Status Bar ═══ -->
   <footer class="statusbar" id="statusbar">
     <span class="status-text" id="status-text">Waiting for capture…</span>
-    <span class="status-time" id="status-time"></span>
+    <div class="statusbar-right">
+      <span class="status-time" id="status-time"></span>
+      <button class="btn-clear-text" id="btn-clear" title="Clear all captures (Ctrl+Delete)">Clear ×</button>
+    </div>
   </footer>
 
-  <!-- ═══ Resize Handle (visual hint) ═══ -->
+  <!-- ═══ Resize Handle (bottom-right corner) ═══ -->
   <div class="resize-handle" id="resize-handle"></div>
 
   <script src="renderer.js"></script>

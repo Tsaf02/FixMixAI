@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(npm run *)",
+      "Bash(grep -E \"\\\\.\\(exe|dll\\)$\")",
+      "WebSearch",
+      "WebFetch",
+      "Bash(ls assets/)",
+      "Bash(ls package-lock.json)",
+      "Bash(npm install *)"
     ]
   }
 }

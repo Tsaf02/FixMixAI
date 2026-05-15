@@ -41,9 +41,9 @@ Tsafrir Or, based in Tel Aviv, Israel.
 
 **Language:**
 - Tsafrir's native language is Hebrew. He understands English well.
-- He prefers reading and writing in Hebrew — it is faster for him.
+- If writing in Hebrew — it is faster for him.
 
-**CRITICAL — RTL/LTR mixing in responses:**
+**CRITICAL — RTL/LTR mixing in responses in hebrew mixed with English:**
 Hebrew text mixed with English terms in the same line causes the word order to
 appear reversed on screen (the RTL mixing problem this project is solving).
 
