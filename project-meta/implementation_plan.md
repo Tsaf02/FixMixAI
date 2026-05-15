@@ -133,29 +133,20 @@ The bridge is a C# executable at `src/native/bin/UiaBridge.exe`.
 
 ---
 
-## Run 4 — Quick Fixes — IN PROGRESS (2026-05-16)
-*Small changes, big quality-of-life improvement. Safe to do regardless of Auto Mode outcome.*
+## Run 4 — COMPLETED (2026-05-16) — git commit f04ea25
 
-### 1. Title Bar Button Size — 1.5×
-- CEO requested buttons "at least one and a half larger" so they are easier to click
-- Current: `.titlebar-btn` 38×34px → Target: ~48×42px
-- Current: `.btn-primary-action` 44px wide → Target: ~54px wide
-- SVG icon sizes scaled accordingly
-
-### 2. LTR Text Alignment Fix
-- Problem: LTR-only lines in an RTL block appear pinned to the far left in wide windows
-- Fix: `.capture-block--ai .text-line[dir="ltr"]` → `text-align: right` (pull toward the right edge where RTL text lives)
-- Alternative: `display: flex; justify-content: flex-end` so LTR text ends at same right margin as RTL text
-
-### 3. Whisper Flow Filter
-- Maintain a blocklist of voice-dictation app process names (e.g. `whisperflow`, `whisper`, `speechrecognition`, `dictation`)
-- In `main.js` source lock logic: if the process name matches a blocked app, skip the capture entirely (don't lock to it, don't capture)
-- ~5 lines in `startClipboardBridge()` handler
+### What was built:
+1. ✅ **Button sizes 1.5×** — `.titlebar-btn` 38×34 → 48×42px, `.btn-primary-action` 44 → 54px wide. SVG icons scaled. Titlebar height 46 → 50px.
+2. ✅ **LTR text alignment fix** — `.capture-block--ai .text-line[dir="ltr"]` gets `text-align: right` so English lines in Hebrew blocks hug the right edge instead of the far left.
+3. ✅ **Wispr Flow filter** — Fixed in C# bridge using `GetClipboardOwner()` (not foreground window). Confirmed process name: `wispr flow helper`. Also blocks: `unknown` (cleanup event), `snippingtool`. Blocklist in `src/native/Program.cs` → `VoiceDictationApps` HashSet.
+4. ✅ **Empty clipboard silently ignored** — `appendCapture()` in `renderer.js` returns early if both html and text are empty.
+5. ✅ **UiaBridge.exe rebuilt** with all C# changes.
 
 ---
 
-## Run 5 — Auto Mode Proof-of-Concept (Next after Run 4)
+## Run 5 — Auto Mode Proof-of-Concept ← NEXT RUN — START HERE
 *The most uncertain and most important feature. Must be tested before any further UI decisions.*
+*Run 4 is done and committed. The app is working. Start Run 5 fresh.*
 
 ### Goal
 Prove whether UIA can detect AI responses without disrupting typing. This is a binary result: it works or it doesn't. No final UI design needed yet — just a working demo.
