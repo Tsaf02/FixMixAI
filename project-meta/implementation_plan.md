@@ -1,6 +1,6 @@
 # FixMixAI — Implementation Plan (Phase 1 ALPHA)
 
-**Last updated: 2026-05-15 — after Run 3 completed + tested**
+**Last updated: 2026-05-16 — after Run 3 test review, planning Run 4+**
 *This is the authoritative plan. The file "implementation_plan 13.05.2026.md" is now outdated.*
 
 ---
@@ -83,20 +83,19 @@ FixMixAI is a floating "Magic Mirror" window that fixes broken RTL (Hebrew/Arabi
 
 ---
 
-## Known Issues (Post Run 2 Tests — 2026-05-14)
+## Known Issues (Post Run 3 Tests — 2026-05-16)
+*Previous Run 2 bugs (#1–7) were resolved in Run 3. Below are new findings from the Run 3 test session (test slides in `project-meta/Test Phase 1 After RUN 3/`).*
 
-### Critical
-1. **UIA Watch Mode disrupts typing** — When the eye icon is active, the UIA bridge fires automation events while the user types in Claude, causing text to disappear, cursor to jump, etc. Root cause: the C# bridge's UIAutomation hooks are not filtered to exclude the user's input field focus state. **This must be fixed before Watch Mode is usable.**
+### Bug
+1. **Whisper Flow / voice-dictation conflict** — If the user dictates text (e.g. using Whisper Flow) before performing a manual copy, FixMix's source lock latches onto the voice-dictation app (`WhisperFlow`) instead of the intended AI app. All subsequent copies from the real app are silently ignored. Fix: maintain a list of known voice-dictation process names to exclude from source locking.
 
-### Medium
-2. **Watch Mode requires manual Copy to trigger** — The UIA bridge detects Claude finishing a reply, but the automatic Ctrl+C simulation (which should copy the response) also fires at wrong times. Current workaround: user clicks Claude's "Copy" button manually — which does trigger an update. Full automation not yet working.
-3. **Centered headings not preserved** — Titles that are centered in the source app appear right-aligned in FixMix. CSS rule needed to detect and preserve centering.
-4. **Bold, colors, highlights** from source not preserved in all cases — depends on clipboard format.
+### Medium UX Issues
+2. **LTR text appears far-left in wide windows** — When a captured block has mostly RTL content but some LTR-only lines (e.g. English words in a Hebrew explanation), those LTR lines hug the left edge of a wide window, far away from the RTL text. They should appear closer to the right border — either right-aligned or center-aligned — to keep visual cohesion.
+3. **No "new content" indicator when scrolled up** — When new blocks are appended and the user has scrolled up, there is no visual cue that new content arrived. A subtle badge or banner at the bottom (e.g. "↓ New capture") should appear and dismiss on scroll-down.
 
 ### Low
-5. **Browser Artifacts / Side Panels** — Canvas, ChatGPT Canvas, Sider sidebar etc. are not auto-captured. Work when user manually copies.
-6. **User vs AI message distinction** — both appear the same. User messages should be styled differently.
-7. **Copy / Save buttons** not yet implemented (export to Word/PDF/MD).
+4. **Artifacts & Canvas re-push behavior** — When the user edits an Artifact in-place in the source app, the clipboard notification fires and the entire Artifact re-renders from the top in FixMix. This is acceptable, but copy/save will need a block-selection UI (see Run 5). Full UIA-based auto-capture of in-place edits may not be possible (clipboard event never fires for in-place changes).
+5. **Title bar buttons could be larger** — Buttons were increased ~40% in Run 3 but CEO requested 1.5× to make them easier to grab with a mouse. Pending implementation.
 
 ---
 
@@ -134,33 +133,125 @@ The bridge is a C# executable at `src/native/bin/UiaBridge.exe`.
 
 ---
 
-## Run 4 — Next Tasks (Priority Order)
+## Run 4 — Quick Fixes — IN PROGRESS (2026-05-16)
+*Small changes, big quality-of-life improvement. Safe to do regardless of Auto Mode outcome.*
 
-### 1. Auto Mode — Fully Automatic Capture (Critical — Backend)
-**Goal:** Add a toggle so the user can choose between two Watch Mode behaviors:
-- **Copy Mode** (current default) — FixMix captures only when the user manually copies text. Safe, no interference.
-- **Auto Mode** — FixMix detects when the AI finishes writing and captures automatically, with no manual copy needed.
+### 1. Title Bar Button Size — 1.5×
+- CEO requested buttons "at least one and a half larger" so they are easier to click
+- Current: `.titlebar-btn` 38×34px → Target: ~48×42px
+- Current: `.btn-primary-action` 44px wide → Target: ~54px wide
+- SVG icon sizes scaled accordingly
 
-**How to implement Auto Mode:**
-- Re-enable UIA bridge in parallel with clipboard listener
-- Fix the UIA typing-disruption bug: only fire `CAPTURE` when the **AI response element** changes, NOT when the user's input field has focus
-- C# fix: ~10 lines — check `GetForegroundWindow()` focus state before firing
-- Add a toggle button in the FixMix title bar (or settings): `Auto / Copy`
-- Persist the user's choice in electron-store
+### 2. LTR Text Alignment Fix
+- Problem: LTR-only lines in an RTL block appear pinned to the far left in wide windows
+- Fix: `.capture-block--ai .text-line[dir="ltr"]` → `text-align: right` (pull toward the right edge where RTL text lives)
+- Alternative: `display: flex; justify-content: flex-end` so LTR text ends at same right margin as RTL text
 
-**Why this matters:** The original vision was that FixMix updates automatically as the AI writes, with zero user action. Copy Mode requires the user to click Copy each time.
+### 3. Whisper Flow Filter
+- Maintain a blocklist of voice-dictation app process names (e.g. `whisperflow`, `whisper`, `speechrecognition`, `dictation`)
+- In `main.js` source lock logic: if the process name matches a blocked app, skip the capture entirely (don't lock to it, don't capture)
+- ~5 lines in `startClipboardBridge()` handler
 
-### 2. Design Polish (Frontend)
-Areas identified during Run 3 testing that need improvement:
-- **General design review** — spacing, font sizes, visual hierarchy. CEO wants a design pass after testing.
-- **User vs AI bubble refinement** — The auto-detection works but the visual difference could be more pronounced
-- **Status bar** — Consider showing more context (e.g. number of captures, which app is locked)
-- **Window minimum size** — Test at small window sizes, ensure nothing breaks
+---
 
-### 3. Accumulation Limit (Future)
+## Run 5 — Auto Mode Proof-of-Concept (Next after Run 4)
+*The most uncertain and most important feature. Must be tested before any further UI decisions.*
+
+### Goal
+Prove whether UIA can detect AI responses without disrupting typing. This is a binary result: it works or it doesn't. No final UI design needed yet — just a working demo.
+
+### What to build
+1. **Rewrite UiaBridge.exe** with the typing bug fixed:
+   - Only fire `CAPTURE` when the AI **response** element changes (not the input box)
+   - Before firing, check that the user's input field does NOT have focus (`GetForegroundWindow`)
+   - Target: Claude Desktop first (Win32 app, best UIA support)
+2. **App selector**: small prompt when Auto Mode is enabled — user picks which process to watch
+3. **Minimal toggle**: add Auto/Copy switch to title bar — functional only, design TBD
+4. **Test and verify**: does it capture correctly? Does it ever fire while the user is typing?
+
+### Decision point after Run 5
+- **Auto Mode works** → Run 6 = full UI redesign per wireframe:
+  - Eye button moves from title bar to status bar
+  - Two mode-selector buttons in title bar: "I choose" / "Auto All" (names TBD)
+  - Status bar gets two live monitors: one for UIA auto-detect, one for clipboard auto-paste
+  - Empty state text changes per selected mode
+  - Notifications if either monitor stops working
+- **Auto Mode doesn't work** → Run 6 = content features (block reorder, copy/save) with current UI
+
+---
+
+## Run 6A (if Auto Mode works) — UI Redesign per Wireframe
+*All details are question marks until Auto Mode is confirmed working. Design from the wireframe in `project-meta/Test Phase 1 After RUN 3/new UI if auto copy will woirk.png`.*
+
+---
+
+## Run 6B (if Auto Mode fails) — Content Management (~2–3 hours)
+*Improves the captured-text experience: knowing new content arrived, reordering, and safe deletion.*
+
+### 1. New Content Indicator
+- When new captures are appended while the user is scrolled up, show a persistent badge at the bottom of the content area: `↓ 1 new capture`
+- Clicking the badge auto-scrolls to the bottom and hides it
+- Counter increments if more captures arrive while badge is visible
+
+### 2. Block Reorder (Up ↑ / Down ↓ Arrows)
+- Each captured block gets two small arrow buttons in its top-right corner
+- ↑ swaps the block with the one above it; ↓ swaps with the one below it
+- First block hides the ↑ arrow; last block hides the ↓ arrow
+- Allows correcting capture order when the user copied them out of sequence
+
+### 3. Clear Confirmation Dialog
+- When the user clicks "Clear ×", show a small confirmation popup: "Clear all captures? This cannot be undone. [Cancel] [Clear]"
+- Option B (simpler): auto-save a `.txt` snapshot to a FixMix folder before clearing, so nothing is lost
+- CEO decision pending on which approach to implement
+
+---
+
+## Run 6 — Copy / Save Export (~2–3 hours)
+*Allows the user to get the corrected RTL text out of FixMix.*
+
+### 1. Block Selection UI
+- Each block gets a subtle checkbox that appears on hover (or always visible)
+- "Copy selected" and "Save selected" buttons appear in the status bar when at least one block is selected
+- Select All / Deselect All helper buttons
+
+### 2. Copy Corrected Text
+- Copies the plain text of selected blocks (with correct RTL order) to clipboard
+- Uses `clipboard.writeText()` — strips HTML tags, keeps content structure
+
+### 3. Save As
+- Supported formats: **Markdown** (plain `.md`), **PDF** (via Electron `printToPDF`), **plain `.txt`**
+- Word/Google Docs/Excel: deferred to Phase 2 (requires native libraries or Google API)
+- File picker dialog via `dialog.showSaveDialog()`
+
+---
+
+## Run 7 — Auto Mode (Largest Run — ~4 hours)
+*The original product vision: FixMix updates automatically when AI finishes writing — no manual Copy needed.*
+
+### Goal
+Add a toggle between two Watch Mode behaviors:
+- **Copy Mode** (current) — captures only when the user manually copies. Zero interference.
+- **Auto Mode** — detects when the AI finishes writing and captures automatically.
+
+### How to Implement
+1. **Write a new `UiaBridge.exe`** (replace the clipboard bridge — or run in parallel)
+   - The C# code watches a specific target process for UI Automation events
+   - Fires `CAPTURE` only when the **AI response container** changes AND the user's input field is NOT focused
+   - Key fix from Run 2 bug: filter by element role (not the input box) + check `GetForegroundWindow()` is the source app, not the input field
+2. **Two-bridge architecture**: clipboard bridge stays for Copy Mode; UIA bridge runs additionally in Auto Mode
+3. **Toggle button** in FixMix title bar: `⚡ Auto` (teal when active) — persisted in electron-store
+4. **App selector**: Auto Mode needs to know which process to watch — show a small popup listing running AI-app processes when Auto is enabled
+5. **Scope limitation**: UIA works for Claude Desktop (Win32 + Accessibility API). Does NOT work for browser-based apps (ChatGPT in Chrome, etc.) — Copy Mode remains the universal fallback.
+
+### Research Question (from test slides)
+Can Artifact/Canvas changes be auto-detected via UIA update events? Initial finding: clipboard event does NOT fire for in-place Artifact edits. UIA `TextChanged` events on Chromium-rendered content are unreliable. This may require a different approach — or may simply not be feasible in Phase 1.
+
+---
+
+## Accumulation Limit (Deferred — CEO Decision Pending)
 - Append mode keeps adding captures indefinitely
-- Consider: maximum capture count (e.g. 50) or "Clear on launch" option
-- Waiting for CEO decision on preferred behavior
+- Options: (a) max 50 blocks, auto-clear oldest; (b) "Clear on launch" option; (c) no limit
+- Waiting for CEO decision before implementing
 
 ---
 
@@ -168,7 +259,8 @@ Areas identified during Run 3 testing that need improvement:
 
 1. **Alt+Space** — Removed from UI. Not needed with Watch Mode always on. Shortcut code removed.
 2. **Ctrl+A before Ctrl+C** — Not needed. Clipboard notification captures whatever the user manually copies.
-3. **UIA scope** — Replaced entirely by clipboard notification for Copy Mode. Will return as optional Auto Mode in Run 4.
+3. **UIA scope** — Replaced entirely by clipboard notification for Copy Mode. Will return as optional Auto Mode in Run 7.
+4. **User/AI flip toggle** — Removed in Run 3. No user story requires it.
 
 ---
 
@@ -212,6 +304,7 @@ src/
     UiaBridge/        ← C# source code for the bridge
 
 project-meta/
-  Tests Phase 1 Run 2/   ← Screenshots + test notes from 2026-05-14
+  Tests Phase 1 Run 2/            ← Screenshots + test notes from 2026-05-14
+  Test Phase 1 After RUN 3/       ← Presentation + screenshots from 2026-05-16 test
   rendering-engine-detection.md  ← Research: how to detect app rendering engine
 ```

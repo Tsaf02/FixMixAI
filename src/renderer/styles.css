@@ -32,7 +32,7 @@
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
 
   /* ── Spacing ── */
-  --titlebar-height: 46px;
+  --titlebar-height: 50px;
   --statusbar-height: 28px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -128,15 +128,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 34px;
+  width: 48px;
+  height: 42px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-size: 16px;
+  font-size: 18px;
   position: relative;
 }
 
@@ -733,8 +733,8 @@ h3[dir="rtl"] {
 
 /* ── Larger primary-action buttons (Recapture + Watch) ── */
 .btn-primary-action {
-  width: 44px;
-  font-size: 18px;
+  width: 54px;
+  font-size: 20px;
 }
 
 /* ════════════════════════════════════════════════════
@@ -814,6 +814,12 @@ h3[dir="rtl"] {
 
 .capture-block--user .text-line {
   color: #c8d8ff;
+}
+
+/* LTR-only lines inside an AI (RTL) block anchor to the right edge,
+   so the user's eye doesn't jump across the full window width */
+.capture-block--ai .text-line[dir="ltr"] {
+  text-align: right;
 }
 
 /* ════════════════════════════════════════════════════

@@ -25,7 +25,24 @@ internal sealed class ClipboardListenerForm : Form
     private static extern IntPtr GetForegroundWindow();
 
     [DllImport("user32.dll")]
+    private static extern IntPtr GetClipboardOwner();
+
+    [DllImport("user32.dll")]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    // Voice-dictation apps write to the clipboard as their paste mechanism.
+    // We check the clipboard OWNER (who wrote it), not the foreground window,
+    // because the foreground is always the target app (e.g. Claude), not the dictation tool.
+    private static readonly HashSet<string> VoiceDictationApps = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "wispr flow helper", "wispr flow",          // Wispr Flow (confirmed process name)
+        "whisperflow", "whisper", "wispr", "wisprflow",
+        "dragon", "dragonspeak", "naturallyspeaking",
+        "speechrecognition", "windowsspeechrecognition",
+        "voicetype", "dictate", "dictation",
+        "snippingtool", "sniptool",                 // Windows Snipping Tool — screenshots, not text
+        "unknown",                                  // Wispr Flow clipboard cleanup leaves empty clipboard
+    };
 
     private const int WM_CLIPBOARDUPDATE = 0x031D;
 
@@ -46,8 +63,23 @@ internal sealed class ClipboardListenerForm : Form
     {
         if (m.Msg == WM_CLIPBOARDUPDATE)
         {
-            string procName = GetForegroundProcessName();
-            Bridge.Emit($"CAPTURE:{procName}");
+            // Check WHO wrote to the clipboard, not who has focus.
+            // Voice-dictation apps (Wispr Flow, Dragon, etc.) write to clipboard
+            // as a paste mechanism — foreground is the target app, owner is the dictation tool.
+            string ownerProc = GetClipboardOwnerProcessName();
+            string foregroundProc = GetForegroundProcessName();
+
+            // Always log both names so we can identify unknown dictation apps
+            Bridge.Log($"Clipboard event — owner: [{ownerProc}]  foreground: [{foregroundProc}]");
+
+            if (VoiceDictationApps.Contains(ownerProc))
+            {
+                Bridge.Log($"Blocked: voice-dictation app [{ownerProc}]");
+                base.WndProc(ref m);
+                return;
+            }
+
+            Bridge.Emit($"CAPTURE:{foregroundProc}");
         }
         base.WndProc(ref m);
     }
@@ -63,6 +95,21 @@ internal sealed class ClipboardListenerForm : Form
         try
         {
             IntPtr hwnd = GetForegroundWindow();
+            GetWindowThreadProcessId(hwnd, out uint pid);
+            return Process.GetProcessById((int)pid).ProcessName.ToLowerInvariant();
+        }
+        catch
+        {
+            return "unknown";
+        }
+    }
+
+    private static string GetClipboardOwnerProcessName()
+    {
+        try
+        {
+            IntPtr hwnd = GetClipboardOwner();
+            if (hwnd == IntPtr.Zero) return "unknown";
             GetWindowThreadProcessId(hwnd, out uint pid);
             return Process.GetProcessById((int)pid).ProcessName.ToLowerInvariant();
         }

@@ -211,6 +211,15 @@ let clipboardBridge = null;
 let lockedSourceApp = null;   // process name of the app FixMix is "locked to"
 let lastCaptureTime = 0;      // throttle: ignore rapid duplicate events
 
+// Voice-dictation apps that write to the clipboard but are NOT the user's intended source.
+// Copying from these never sets the source lock and is always ignored.
+const VOICE_DICTATION_BLOCKLIST = new Set([
+  'whisperflow', 'whisper', 'wispr', 'wisprflow',
+  'dragon', 'dragonspeak', 'naturallyspeaking',
+  'speechrecognition', 'windowsspeechrecognition',
+  'voicetype', 'dictate', 'dictation',
+]);
+
 function getClipboardBridgePath() {
   return path.join(__dirname, 'native', 'bin', 'UiaBridge.exe');
 }
@@ -240,6 +249,9 @@ function startClipboardBridge() {
     for (const line of lines) {
       if (line.startsWith('CAPTURE:')) {
         const sourceApp = line.slice('CAPTURE:'.length);
+
+        // Never lock to or capture from voice-dictation apps
+        if (VOICE_DICTATION_BLOCKLIST.has(sourceApp)) continue;
 
         // Throttle: ignore events within 500ms of the last accepted capture
         const now = Date.now();

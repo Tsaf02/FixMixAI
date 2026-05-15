@@ -213,11 +213,7 @@ function appendCapture(data) {
   } else if (data.text && data.text.trim()) {
     block = buildPlainTextBlock(data.text, type);
   } else {
-    block = document.createElement('div');
-    block.className = 'capture-block capture-block--ai';
-    block.innerHTML =
-      '<div class="text-line" dir="rtl" style="color:var(--text-muted);padding:20px 0">' +
-      'לא נמצא טקסט בלוח ההעתקה</div>';
+    return; // clipboard was empty (screenshot, dictation cleanup, etc.) — ignore silently
   }
 
   // Separator between captures (not before the first one)
@@ -229,6 +225,7 @@ function appendCapture(data) {
     contentScroll.appendChild(sep);
   }
 
+  if (!block) return;
   contentScroll.appendChild(block);
 
   // Reveal content area
